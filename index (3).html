@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Domar la complejidad · El sentido de los datos en el periodismo</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#faf7f2;--surf:#fff;--ink:#1f2430;--mut:#5d6575;--acc:#c2410c;--acc2:#0f766e;--line:#e6dfd3;--ok:#15803d;--bad:#b91c1c;--okbg:#e7f6ec;--badbg:#fdeaea;--warn:#fff4d6;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#16181d;--surf:#20232b;--ink:#eceae5;--mut:#a3a9b6;--acc:#fb923c;--acc2:#2dd4bf;--line:#333845;--ok:#4ade80;--bad:#f87171;--okbg:#14301f;--badbg:#3a1c1c;--warn:#3a3217;color-scheme:dark}}
+html{scroll-padding-top:60px;scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Georgia,"Times New Roman",serif}
+h1,h2,h3,button,.tag,label,input,select{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:0 18px}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:8px 0}
+header.top .wrap{display:flex;align-items:center;gap:12px;font:600 13px system-ui}
+.bar{flex:1;height:8px;background:var(--line);border-radius:9px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--acc2);transition:width .4s}
+.hero{padding:44px 0 20px}
+.hero h1{font-size:clamp(34px,7vw,56px);line-height:1.05;margin:0 0 6px;letter-spacing:-.02em}
+.hero h1 em{color:var(--acc);font-style:normal}
+.sub{font:600 15px system-ui;color:var(--acc2);text-transform:uppercase;letter-spacing:.08em}
+.welcome{background:var(--surf);border:1px solid var(--line);border-left:5px solid var(--acc);border-radius:12px;padding:16px 20px;font-size:18px;margin-top:18px}
+h2{font-size:26px;margin:44px 0 12px}
+.quotes{position:relative}
+.q{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:22px 24px;min-height:170px;display:flex;flex-direction:column;justify-content:space-between}
+.q p{margin:0 0 12px;font-size:19px;font-style:italic}
+.q cite{font:600 14px system-ui;color:var(--acc)}
+.nav{display:flex;gap:8px;align-items:center;justify-content:center;margin-top:10px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--line);border:0;padding:0;cursor:pointer}
+.dot.on{background:var(--acc)}
+button.btn{background:var(--acc);color:#fff;border:0;border-radius:9px;padding:9px 16px;font-weight:600;font-size:15px;cursor:pointer}
+button.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+button.btn:disabled{opacity:.5;cursor:default}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.card h3{margin:0 0 6px;font-size:17px}
+.card.note{background:var(--warn)}
+.tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--acc2)}
+.reto{background:var(--surf);border:1px solid var(--line);border-radius:16px;margin:18px 0;overflow:hidden}
+.reto>header{padding:16px 20px;display:flex;gap:12px;align-items:center;cursor:pointer}
+.num{flex:none;width:38px;height:38px;border-radius:50%;background:var(--acc);color:#fff;display:grid;place-items:center;font:700 17px system-ui}
+.reto.done .num{background:var(--ok)}
+.reto h3{margin:0;font-size:19px}
+.reto .body{display:none;padding:0 20px 20px;border-top:1px solid var(--line)}
+.reto.open .body{display:block}
+.box{background:var(--bg);border-radius:10px;padding:12px 14px;margin:12px 0}
+.box b.l{font:700 12px system-ui;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);display:block}
+.row{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.fld{flex:1 1 200px}
+.fld label{display:block;font-size:13px;font-weight:600;color:var(--mut);margin-bottom:3px}
+input[type=text]{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--surf);color:var(--ink);font-size:16px}
+input.ok{border-color:var(--ok);background:var(--okbg)}
+input.bad{border-color:var(--bad);background:var(--badbg)}
+.opt{display:block;width:100%;text-align:left;margin:6px 0;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:var(--surf);color:var(--ink);font:15px system-ui;cursor:pointer}
+.opt.sel{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc) inset}
+.opt.ok{border-color:var(--ok);background:var(--okbg)}
+.opt.bad{border-color:var(--bad);background:var(--badbg)}
+.fb{font:600 14px system-ui;margin:8px 0}
+.sol{display:none;margin-top:14px;border-left:4px solid var(--acc2);padding:4px 0 4px 14px}
+.sol.show{display:block}
+.concl{background:var(--okbg);border-radius:10px;padding:10px 14px;margin-top:10px}
+.fix{background:var(--warn);border-radius:10px;padding:10px 14px;margin-top:10px;font-size:14px}
+.bars{margin:12px 0}
+.br{display:flex;align-items:center;gap:8px;font:13px system-ui;margin:5px 0}
+.br span.n{flex:0 0 120px}
+.br .t{flex:1;background:var(--line);border-radius:6px;height:20px;overflow:hidden}
+.br .t i{display:block;height:100%;background:var(--acc2);border-radius:6px;min-width:3px}
+.br .t i.h{background:var(--acc)}
+.br span.v{flex:0 0 78px;text-align:right;font-weight:700}
+.final{background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:50px}
+blockquote{margin:10px 0;padding-left:14px;border-left:4px solid var(--acc);font-style:italic}
+footer{text-align:center;color:var(--mut);font:13px system-ui;padding:0 0 40px}
+code{font-family:ui-monospace,Menlo,monospace;font-size:14px;background:var(--bg);padding:1px 5px;border-radius:5px}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap"><span>Retos <b id="cnt">0</b>/6</span><div class="bar"><i id="pb"></i></div></div></header>
+<main class="wrap">
+<section class="hero">
+<div class="sub">El sentido de los datos en el periodismo</div>
+<h1>Domar la <em>complejidad</em></h1>
+<div class="welcome">Bienvenido/a a “Domar la complejidad”. En el ejercicio periodístico, los números no son solo cifras aisladas; son herramientas para investigar, contrastar la realidad y cuestionar discursos públicos. Esta aplicación tiene como objetivo recordar y ejercitar el uso crítico de seis instrumentos esenciales de análisis estadístico aplicados a casos reales.</div>
+</section>
+
+<h2>Citas teóricas relevantes</h2>
+<p>Para sustentar el valor del análisis numérico en la labor informativa, el entorno didáctico se apoya en los siguientes referentes:</p>
+<div class="quotes"><div class="q" id="qbox"></div>
+<div class="nav"><button class="btn ghost" onclick="qgo(-1)" aria-label="Anterior">←</button><span id="dots"></span><button class="btn ghost" onclick="qgo(1)" aria-label="Siguiente">→</button></div></div>
+
+<h2>Marco conceptual del análisis</h2>
+<p>El periodismo basado en datos se inscribe principalmente en los niveles descriptivo y diagnóstico:</p>
+<div class="grid">
+<div class="card"><span class="tag">Descriptivo</span><h3>Análisis descriptivo</h3>Permite dimensionar la realidad. <i>Ejemplo: solo tres empresas ganan el 90% de las contrataciones viales.</i></div>
+<div class="card"><span class="tag">Diagnóstico</span><h3>Análisis diagnóstico</h3>Busca explicar las causas o relaciones subyacentes. <i>Ejemplo: estas tres empresas financiaron la campaña electoral del gobernador.</i></div>
+<div class="card note"><span class="tag">Nota metodológica</span><h3>Análisis predictivo</h3>Suele ser riesgoso en periodismo dada su naturaleza especulativa.</div>
+</div>
+
+<h2>Módulo de desarrollo: retos y problemas periodísticos</h2>
+<p>Seis retos, uno por instrumento de análisis. Abre cada reto, resuelve, comprueba tus respuestas y revisa la solución. Puedes escribir decimales con coma o punto.</p>
+<div id="retos"></div>
+
+<h2>Reflexión sobre el rigor numérico en la profesión</h2>
+<div class="final">
+<blockquote>“La presencia de un número aislado no significa demasiado. Hay que compararlo con otros números o incluso con una sarta de números antes de descubrir su sentido” (Philip Meyer).</blockquote>
+<blockquote>“Los números no pueden hablar por sí mismos. Nosotros hablamos por ellos. Les conferimos significado” (Nate Silver).</blockquote>
+<div class="concl"><b>Idea clave para la práctica periodística.</b> Usar herramientas de análisis matemático e instrumental estadístico no busca convertir al periodista en matemático, sino capacitarlo para domar la complejidad, cuestionar los datos que presentan las fuentes oficiales, realizar comparaciones equitativas y ofrecer a la ciudadanía historias rigurosas, contextualizadas y veraces.</div>
+<div class="fix"><b>Correcciones respecto al guion original.</b> (1) Reto 2: la desviación de la Empresa B es $850.000, pero el guion calculaba con 125.000 (resultado 5%). El CV correcto es 34%, y la conclusión se ajustó. (2) Reto 5: la desviación estándar del Distrito 2 es 11,81 min (no 11,85).</div>
+</div>
+</main>
+<footer>Domar la complejidad · material didáctico</footer>
+
+<script>
+const Q=[["Los números no pueden hablar por sí mismos. Nosotros hablamos por ellos. Les conferimos significado.","Nate Silver (citado por David Spiegelhalter)"],
+["… la presencia de un número aislado no significa demasiado. Hay que compararlo con otros números o incluso con una sarta de números antes de descubrir su sentido.","Philip Meyer"],
+["Las “noticias numéricas” complementan, profundizan y por lo general socavan las “noticias humanas”.","John Allen Paulos"],
+["Si entendemos el Periodismo como la actividad que consiste en domar la complejidad, en organizarla, sintetizarla, interpretarla y poner su producto a disposición de los ciudadanos para que estos tomen mejores decisiones, la falta de conocimientos de estadística y matemáticas, común entre los profesionales, es peligrosa.","Alberto Cairo"],
+["Los periodistas a menudo enfrentan la “ignorancia” sobre las “complejidades numéricas y las leyes matemáticas”.","José Javier Dader"]];
+let qi=0;
+function qr(){const[t,a]=Q[qi];qbox.innerHTML='<p>“'+t+'”</p><cite>— '+a+'</cite>';
+dots.innerHTML=Q.map((_,i)=>'<button class="dot'+(i==qi?' on':'')+'" onclick="qi='+i+';qr()" aria-label="Cita '+(i+1)+'"></button>').join(' ')}
+function qgo(d){qi=(qi+d+Q.length)%Q.length;qr()}
+qr();
+
+const R=[
+{t:"Proporciones y porcentajes",ins:"Proporciones y porcentajes.",pro:"Poner los datos en contexto, realizar comparaciones equitativas entre grupos de diferente tamaño, identificar tendencias y simplificar la información sin distorsionarla.",
+ prob:"Un titular institucional afirma: “Medellín registra 1.800 personas sin acceso a agua potable, una cifra alarmante”. Por otra parte, la alcaldía de un municipio pequeño informa que en su territorio hay 450 personas sin agua potable. Si nos quedamos con las cifras absolutas, Medellín parece estar en una situación inmensamente más grave.",
+ preg:"Sabiendo que la población de Medellín es de aproximadamente 2’400.000 habitantes y la del municipio pequeño es de 15.000 habitantes, ¿cuál es la proporción/porcentaje real del problema en cada territorio y cuál resulta estar en una situación más crítica proporcionalmente?",
+ inp:[["Medellín (% sin agua potable)",0.075,0.002],["Municipio pequeño (% sin agua potable)",3,0.02]],
+ mcq:[["¿Cuál está en situación más crítica proporcionalmente?",["Medellín","El municipio pequeño"],1]],
+ sol:"Medellín: (1.800 / 2.400.000) × 100 = <b>0,075%</b> de la población sin agua potable.<br>Municipio pequeño: (450 / 15.000) × 100 = <b>3,0%</b> de la población.",
+ bars:[["Medellín",0.075,3,"0,075%"],["Municipio pequeño",3,3,"3,0%",1]],
+ con:"Aunque Medellín tiene más personas afectadas en términos absolutos, el problema afecta a una proporción 40 veces mayor en el municipio pequeño (3% vs 0,075%). La proporción y el porcentaje otorgan contexto y permiten una comparación justa entre poblaciones de distinto tamaño."},
+{t:"Coeficiente de variación",ins:"Coeficiente de variación: CV = (Desviación típica / Media) × 100.",pro:"Comparar el “grado de desorden” o heterogeneidad entre conjuntos de datos diversos y evaluar la estabilidad de los salarios u otros indicadores socioeconómicos.",
+ prob:"Un equipo periodístico analiza la equidad salarial en dos empresas contratistas del Estado.<br><b>Empresa A:</b> salario medio = $4’000.000, desviación típica = $1’800.000.<br><b>Empresa B:</b> salario medio = $2’500.000, desviación típica = $850.000.",
+ preg:"Calcula el coeficiente de variación para ambas empresas. ¿En cuál existe mayor dispersión o desigualdad interna de salarios?",
+ inp:[["CV Empresa A (%)",45,0.5],["CV Empresa B (%)",34,0.5]],
+ mcq:[["¿En cuál empresa hay mayor dispersión salarial?",["Empresa A","Empresa B"],0]],
+ sol:"Empresa A: CV = (1.800.000 / 4.000.000) × 100 = <b>45%</b>.<br>Empresa B: CV = (850.000 / 2.500.000) × 100 = <b>34%</b>.",
+ bars:[["Empresa A",45,50,"45%",1],["Empresa B",34,50,"34%"]],
+ con:"Si un CV supera el 30%, indica que los datos son muy heterogéneos y dispersos. La empresa A presenta un CV del 45% (alta brecha/desigualdad interna); la empresa B, con 34%, también supera ese umbral, aunque con una dispersión menor.",
+ fix:"Corrección: el guion calculaba la Empresa B con 125.000 y obtenía 5%. Con la desviación indicada ($850.000) el CV es 34%, por lo que la conclusión original (“salarios muy homogéneos”) no se sostenía."},
+{t:"Razones y tasas",ins:"Razón (X/Y) y tasa comparativa T = (#E / P) × U.",pro:"Evidenciar asimetrías/desigualdades (razones) y realizar rankings o comparaciones regionales objetivas ajustadas por población expuesta (tasas).",
+ prob:"En un municipio A se registraron 120 robos en un año (población: 400.000 habitantes). En un municipio B se registraron 40 robos (población: 50.000 habitantes). Además, en la entrega de subsidios del municipio A, por cada 15 hombres beneficiados solo 3 mujeres recibieron el subsidio.",
+ preg:"Calcula la razón de asignación de subsidios (hombres vs. mujeres). Calcula la tasa de robos por cada 100.000 habitantes (U = 100.000) para cada municipio. ¿Cuál tiene mayor incidencia delictiva?",
+ inp:[["Razón hombres / mujeres",5,0.01],["Tasa municipio A (por 100.000)",30,0.1],["Tasa municipio B (por 100.000)",80,0.1]],
+ mcq:[["¿Cuál municipio tiene mayor incidencia delictiva?",["Municipio A","Municipio B"],1]],
+ sol:"Razón de subsidios: 15 / 3 = <b>5</b>. Por cada mujer beneficiada hay 5 hombres que reciben el subsidio (asimetría de 5 a 1).<br>Tasa municipio A: (120 / 400.000) × 100.000 = <b>30</b> robos por cada 100.000 habitantes.<br>Tasa municipio B: (40 / 50.000) × 100.000 = <b>80</b> robos por cada 100.000 habitantes.",
+ bars:[["Municipio A",30,80,"30"],["Municipio B",80,80,"80",1]],
+ con:"A pesar de tener un número absoluto menor de delitos (40 vs 120), el municipio B tiene una tasa delictiva casi tres veces superior a la del municipio A, lo que cambia drásticamente el enfoque de la noticia."},
+{t:"Medidas de tendencia central",ins:"Media, mediana y moda.",pro:"Identificar el valor representativo de un conjunto de datos y detectar cuándo la media aritmética oculta asimetrías o valores atípicos (outliers).",
+ prob:"El ministerio de vivienda reporta que el ingreso mensual promedio por hogar en un vecindario es de $8’500.000. Sin embargo, los habitantes afirman que la mayoría vive en condiciones de pobreza. Al revisar la muestra de 7 hogares, los ingresos son:<br><code>$1’000.000, $1’200.000, $1’200.000, $1’300.000, $1’500.000, $2’300.000, $51’000.000</code>",
+ preg:"Calcula la media, la mediana y la moda. ¿Cuál de estas medidas debe usar el periodista para reflejar con veracidad la realidad socioeconómica de la comunidad?",
+ inp:[["Media (millones de $)",8.5,0.01],["Mediana (millones de $)",1.3,0.01],["Moda (millones de $)",1.2,0.01]],
+ mcq:[["¿Qué medida refleja mejor la realidad de la comunidad?",["La media","La mediana","La moda"],1]],
+ sol:"Media: 59.500.000 / 7 = <b>$8’500.000</b>.<br>Mediana: el valor central de los 7 datos ordenados: <b>$1’300.000</b>.<br>Moda: <b>$1’200.000</b> (el valor que más se repite).",
+ bars:[["Media",8.5,8.5,"8,5 M",1],["Mediana",1.3,8.5,"1,3 M"],["Moda",1.2,8.5,"1,2 M"]],
+ con:"La media ($8’500.000) está distorsionada por un valor atípico de un hogar de ingresos muy altos ($51’000.000). El periodista debe emplear la mediana ($1’300.000) para mostrar la verdadera situación representativa del sector."},
+{t:"Medidas de varianza y dispersión",ins:"Varianza y desviación estándar.",pro:"Evaluar la consistencia, equidad o volatilidad en la ejecución de presupuestos públicos o tiempos de respuesta institucional.",
+ prob:"Un periodista investiga los tiempos de respuesta de las ambulancias en dos distritos de la ciudad. Ambos distritos reportan un tiempo promedio de atención de 15 minutos.<br><b>Distrito 1:</b> 14, 15, 15, 16, 15 minutos (desviación estándar 0,71 min).<br><b>Distrito 2:</b> 2, 5, 15, 23, 30 minutos.",
+ preg:"¿Por qué el promedio de 15 minutos es engañoso en el Distrito 2 y qué revela la desviación estándar sobre el servicio prestado?",
+ inp:[["Desviación estándar del Distrito 2 (muestral, n − 1), en min",11.81,0.05]],
+ mcq:[["¿Qué revela la desviación estándar alta del Distrito 2?",["Que el servicio es más rápido que en el Distrito 1","Que el promedio oculta tiempos muy desiguales: unos pacientes esperan muy poco y otros mucho","Que el promedio es incorrecto matemáticamente"],1]],
+ sol:"Distrito 2: desviaciones respecto a 15 → −13, −10, 0, 8, 15. Suma de cuadrados = 558. Varianza = 558 / 4 = 139,5 → desviación estándar ≈ <b>11,81 min</b>. (Distrito 1: varianza 0,5 → 0,71 min.)<br>En el Distrito 1 la varianza y la desviación estándar son mínimas, garantizando previsibilidad. En el Distrito 2, la alta dispersión significa que un paciente puede ser atendido en 2 minutos o morir esperando 30 minutos.",
+ bars:[["Distrito 1",0.71,12,"0,71 min"],["Distrito 2",11.81,12,"11,81 min",1]],
+ con:"La varianza permite desenmascarar promedios homogéneos que ocultan una seria ineficiencia y falta de equidad en la atención de emergencias.",
+ fix:"Corrección: el guion indicaba 11,85 min para el Distrito 2; el cálculo exacto (n − 1) da 11,81 min."},
+{t:"Medidas de posición relativa",ins:"Percentiles, cuartiles y deciles.",pro:"Identificar cómo se distribuye un recurso, determinar el sesgo de la inversión pública y situar casos específicos dentro de un colectivo.",
+ prob:"En un análisis de inversión pública educativa en 100 colegios de la región, los datos de presupuesto ejecutado se dividen en cuartiles:<br><b>Q1</b> (percentil 25): $50 millones · <b>Q2</b> (mediana, percentil 50): $120 millones · <b>Q3</b> (percentil 75): $200 millones.<br>Colegio “San José” (P90): $450 millones.",
+ preg:"¿Qué significa que el 25% de los colegios esté en o por debajo de Q1 y que el Colegio San José se ubique en el percentil 90 (P90)?",
+ inp:[],
+ mcq:[["¿Qué significa que el 25% de los colegios esté en o por debajo de Q1?",["Que ese 25% recibe $50 millones o menos","Que ese 25% recibe más de $50 millones","Que esos colegios reciben la mitad del presupuesto total"],0],
+ ["¿Qué significa que San José esté en el P90?",["Que recibe el 90% del presupuesto","Que recibe un presupuesto igual o superior al de 90 de los 100 colegios","Que está entre el 90% de colegios peor financiados y por eso es vulnerable"],1]],
+ sol:"<b>Interpretación:</b><br>• El 25% de las escuelas más vulnerables recibe $50 millones o menos.<br>• El 50% de los colegios recibe hasta $120 millones.<br>• Estar en el P90 significa que el Colegio “San José” recibe un presupuesto igual o superior al de 90 de los 100 colegios analizados.",
+ bars:[["Q1 (P25)",50,450,"$50 M"],["Q2 (P50)",120,450,"$120 M"],["Q3 (P75)",200,450,"$200 M"],["San José (P90)",450,450,"$450 M",1]],
+ con:"Las medidas de posición relativa permiten mapear la inequidad en la distribución de fondos públicos e identificar cuáles instituciones están sobre o subfinanciadas respecto al resto."}
+];
+const S=R.map(r=>({sel:r.mcq.map(()=>-1),done:false}));
+const $=id=>document.getElementById(id);
+function render(){ $('retos').innerHTML=R.map((r,i)=>{
+ let h='<div class="reto" id="r'+i+'"><header onclick="tg('+i+')"><div class="num">'+(i+1)+'</div><div><span class="tag">Reto '+(i+1)+'</span><h3>'+r.t+'</h3></div></header><div class="body">';
+ h+='<div class="box"><b class="l">Instrumento</b>'+r.ins+'</div><div class="box"><b class="l">Propósito periodístico</b>'+r.pro+'</div>';
+ h+='<h3>Planteamiento del problema</h3><p>'+r.prob+'</p><div class="box"><b class="l">Pregunta / desafío</b>'+r.preg+'</div>';
+ if(r.inp.length){h+='<div class="row">'+r.inp.map((f,j)=>'<div class="fld"><label for="i'+i+'_'+j+'">'+f[0]+'</label><input type="text" inputmode="decimal" id="i'+i+'_'+j+'" autocomplete="off"></div>').join('')+'</div>'}
+ r.mcq.forEach((m,k)=>{h+='<div class="box"><b class="l">'+m[0]+'</b>'+m[1].map((o,j)=>'<button class="opt" id="o'+i+'_'+k+'_'+j+'" onclick="pick('+i+','+k+','+j+')">'+o+'</button>').join('')+'</div>'});
+ h+='<div class="fb" id="fb'+i+'"></div><div class="row"><button class="btn" onclick="chk('+i+')">Comprobar</button><button class="btn ghost" onclick="rev('+i+')">Ver solución y análisis</button></div>';
+ h+='<div class="sol" id="s'+i+'"><b>Solución y análisis</b><p>'+r.sol+'</p><div class="bars">'+r.bars.map(b=>'<div class="br"><span class="n">'+b[0]+'</span><span class="t"><i class="'+(b[4]?'h':'')+'" style="width:'+Math.max(1,b[1]/b[2]*100)+'%"></i></span><span class="v">'+b[3]+'</span></div>').join('')+'</div><div class="concl"><b>Conclusión periodística.</b> '+r.con+'</div>'+(r.fix?'<div class="fix">'+r.fix+'</div>':'')+'</div>';
+ return h+'</div></div>'}).join('')}
+function tg(i){$('r'+i).classList.toggle('open')}
+function pick(i,k,j){S[i].sel[k]=j;R[i].mcq[k][1].forEach((_,x)=>$('o'+i+'_'+k+'_'+x).className='opt'+(x==j?' sel':''))}
+function pn(s){return parseFloat(String(s).replace(/[%$\s]/g,'').replace(',','.'))}
+function chk(i){const r=R[i];let ok=0,tot=r.inp.length+r.mcq.length,empty=false;
+ r.inp.forEach((f,j)=>{const e=$('i'+i+'_'+j),v=pn(e.value);if(isNaN(v)){empty=true;e.className='';return}const g=Math.abs(v-f[1])<=f[2];e.className=g?'ok':'bad';if(g)ok++});
+ r.mcq.forEach((m,k)=>{const s=S[i].sel[k];if(s<0){empty=true;return}m[1].forEach((_,x)=>$('o'+i+'_'+k+'_'+x).className='opt'+(x==m[2]?' ok':(x==s?' bad':'')));if(s==m[2])ok++});
+ const fb=$('fb'+i);
+ if(empty){fb.style.color='var(--mut)';fb.textContent='Completa todas las respuestas antes de comprobar.';return}
+ if(ok==tot){fb.style.color='var(--ok)';fb.textContent='¡Excelente! Todas tus respuestas son correctas.';fin(i,true)}
+ else{fb.style.color='var(--bad)';fb.textContent='Correctas: '+ok+' de '+tot+'. Revisa las marcadas en rojo e inténtalo de nuevo, o consulta la solución.'}}
+function rev(i){$('s'+i).classList.add('show');fin(i,false)}
+function fin(i,show){if(show)$('s'+i).classList.add('show');S[i].done=true;$('r'+i).classList.add('done');const n=S.filter(s=>s.done).length;$('cnt').textContent=n;$('pb').style.width=n/6*100+'%'}
+render();tg(0);
+</script>
+</body>
+</html>
